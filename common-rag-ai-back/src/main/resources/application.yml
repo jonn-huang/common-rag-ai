@@ -13,7 +13,8 @@ spring:
       max-file-size: 100MB
       max-request-size: 100MB
   profiles:
-    active: dev
+    # local 为本地私有配置层（application-local.yml 不入库），缺失时不影响启动
+    active: dev,local
   ai:
     websearch:
       api-key: ${WEBSEARCH_API_KEY:}

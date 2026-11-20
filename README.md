@@ -171,6 +171,20 @@ npm run dev
 | `MYSQL_URL` / `MYSQL_USERNAME` / `MYSQL_PASSWORD` | 可选 | 默认 `localhost:3306/common_rag`、`root` / `123456` |
 | `JWT_ADMIN_SECRET` / `JWT_USER_SECRET` | 生产必改 | JWT 签名密钥，存在本地默认值 |
 
+### 本地私有配置
+
+本地开发不想逐次设置环境变量时，把真实值写入 `common-rag-ai-back/src/main/resources/application-local.yml`：
+
+- `application.yml` 中 `spring.profiles.active` 已设为 `dev,local`，该文件会自动加载并覆盖占位值；文件缺失时不影响启动，回退为环境变量方式
+- `application-local.yml` 已被根 `.gitignore` 排除，任何以 `-local.yml` 结尾的配置文件都不应提交
+- 后续如需新增敏感项，一律加到这个文件，不要写回 `application.yml`
+
+### 分支协作
+
+- `master` 只保留可发布的干净基线，不含任何密钥
+- `rag-dev` 承载日常开发与新功能，完成后合回：`git switch master; git merge --no-ff rag-dev`
+- 提交前用 `git status` 确认没有 `application-local.yml` 之类的本地文件被打包
+
 ## 配置说明
 
 `common-rag-ai-back/src/main/resources/application.yml` 关键项：
