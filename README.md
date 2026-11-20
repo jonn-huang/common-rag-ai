@@ -3,7 +3,7 @@
 基于 Spring AI 与阿里云百炼（DashScope / 通义千问）构建的 RAG 知识库问答系统，配套 Vue 3 管理后台。覆盖文档入库、切片策略、向量化、混合检索、引用溯源、内容安全与运营统计的完整链路，可直接作为企业知识库应用的二次开发底座。
 ![img_1.png](img_1.png)
 ![img.png](img.png)
-![img_2.png](img_2.png)
+<img width="1914" height="887" alt="img-4" src="https://github.com/user-attachments/assets/37b504df-4d82-4edc-a0eb-d8c34bcddc0a" />
 ![img_3.png](img_3.png)
 ## 项目定位
 
