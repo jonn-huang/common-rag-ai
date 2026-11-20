@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.common.rag.mapper.AliOssFileMapper">
+
+    <resultMap id="BaseResultMap" type="com.common.rag.entity.AliOssFile">
+            <id property="id" column="id" />
+            <result property="fileName" column="file_name" />
+            <result property="url" column="url" />
+            <result property="fileSize" column="file_size" />
+            <result property="category" column="category" />
+            <result property="chunkStrategy" column="chunk_strategy" />
+            <result property="chunkConfig" column="chunk_config" />
+            <result property="status" column="status" />
+            <result property="vectorId" column="vector_id" />
+            <result property="createTime" column="create_time" />
+            <result property="updateTime" column="update_time" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,file_name,url,file_size,category,chunk_strategy,chunk_config,status,vector_id,create_time,update_time
+    </sql>
+    <select id="findByFileNameContaining" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM ali_oss_file
+        <where>
+            <if test="fileName != null and fileName != ''">
+                file_name LIKE CONCAT('%', #{fileName}, '%')
+            </if>
+            <if test="category != null and category != ''">
+                AND category = #{category}
+            </if>
+        </where>
+        ORDER BY id DESC
+    </select>
+</mapper>

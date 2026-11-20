@@ -1,0 +1,101 @@
+# 敏感配置统一由环境变量注入，仓库内不保留真实密钥。可用变量：
+#   DASHSCOPE_API_KEY   阿里云百炼（DashScope）API Key，必填
+#   WEBSEARCH_API_KEY   联网搜索服务 API Key，可空
+#   ALI_OSS_AK / ALI_OSS_SK  阿里云 OSS 访问密钥，上传知识库文件时必填
+#   MYSQL_URL / MYSQL_USERNAME / MYSQL_PASSWORD  数据库连接，默认本机 common_rag 库
+#   JWT_ADMIN_SECRET / JWT_USER_SECRET  JWT 签名密钥，生产环境务必覆盖
+server:
+  port: 8989
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  profiles:
+    active: dev
+  ai:
+    websearch:
+      api-key: ${WEBSEARCH_API_KEY:}
+      searxng:
+        url: "http://127.0.0.1:8080/search"
+        nums: 10
+        engines: "duckduckgo,google,bing,brave,mojeek,presearch,qwant,startpage,yahoo,arxiv,crossref,google_scholar,internetarchivescholar,semantic_scholar"
+    dashscope:
+      api-key: ${DASHSCOPE_API_KEY:}
+
+    vectorstore:
+      milvus:
+        client:
+          host: "127.0.0.1" # default: localhost
+          port: 19530 # default: 19530
+          username: "" # default: root
+          password: "" # default: milvus
+        databaseName: "default"
+        collectionName: "vector_store" # default: vector_store
+        embeddingDimension: 1536 # default: 1536
+        indexType: IVF_FLAT # default: IVF_FLAT
+        metricType: COSINE # default: COSINE
+        initializeSchema: true # 自动创建集合
+  datasource:
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:123456}
+    url: ${MYSQL_URL:jdbc:mysql://localhost:3306/common_rag?serverTimezone=UTC}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+
+  data:
+    redis:
+      port: 6379              # Redis 服务器端口，默认为 6379
+#      password:               # Redis 密码，默认为空
+      timeout: 5000ms         # 连接超时时间
+      lettuce:
+        pool:
+          max-active: 8       # 最大连接数
+          max-idle: 4         # 最大空闲连接数
+          min-idle: 1         # 最小空闲连接数
+          max-wait: 2000ms
+aliyun:
+  alioss:
+    endpoint: ${ALI_OSS_ENDPOINT:oss-cn-beijing.aliyuncs.com}
+    access-key-id: ${ALI_OSS_AK:}
+    access-key-secret: ${ALI_OSS_SK:}
+    bucket-name: ${ALI_OSS_BUCKET:spring-rag-file}
+
+common:
+  jwt:
+    # 设置jwt签名加密时使用的秘钥
+    admin-secret-key: ${JWT_ADMIN_SECRET:common_jwt_secret_key_for_admin_access_256_bits_required}
+    # 设置jwt过期时间
+    admin-ttl: 7200000
+    # 设置前端传递过来的令牌名称
+    admin-token-name: token
+    user-secret-key: ${JWT_USER_SECRET:common_jwt_secret_key_for_user_access_256_bits_required}
+    user-ttl: 7200000
+    user-token-name: authorization
+
+
+logging:
+  level:
+    org:
+      springframework:
+        ai:
+          chat:
+            client:
+              advisor: debug
+
+# 知识库问答的默认提示词与拒答策略，以下配置均可省略，省略时使用 RagAnswerProperties 中的默认值
+# 页面「我的知识库 - 问答提示词」保存后以数据库 answer_config 表为准，这里仅作为兜底默认值
+rag:
+  answer:
+    # 超出业务范围或资料不足时的固定回复，同时会注入到系统提示词
+    # refusal-message: 抱歉，这个问题超出了我的业务范围。我只能依据知识库中的业务资料作答。
+    # 检索未命中时是否直接拒答（false 则回退为让模型自由回答）
+    # refuse-when-no-context: true
+    # 语义检索模式下最高相似度低于该值同样拒答，混合与全文模式不参与该判断
+    # min-answer-score: 0.55
+    # 系统提示词，覆盖后即可换成具体行业话术，{refusal} 与 {current_data} 会被自动替换
+    # system-prompt: |
+    #   你是「XX保险公司」的智能业务客服，只负责解答与理赔、保全、投保相关的问题。
+    #   只能依据【资料N】作答，资料不足或问题超出范围时直接回复：{refusal}
+    #   今天是 {current_data}。
